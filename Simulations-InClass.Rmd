@@ -295,4 +295,30 @@ The steps of this process are:
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 
+``` {r echo = TRUE}
+
+data = 1:100
+numIteration = 1000
+
+boot_ci <- function(data, numIteration = 1000) {
+  # Initalize vector of statistics 
+  meanBoots <- rep(NA, numIteration)
+  
+  # Bootstrap procedure
+  for (i in 1:numIteration) {
+    # Create bootstrap sample and do statistic on it
+    bootData <- sample(data, replace = T) # draw a sample with replacement from data
+    meanBoots[i] <- mean(bootData)
+  }
+  
+  # Compute 95% confidence interval 
+  ciBounds <- quantile(meanBoots, c(.025, .975))
+  return(ciBounds)
+}
+
+boot_ci(data)
+
+```
+```
+
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
