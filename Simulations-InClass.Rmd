@@ -169,9 +169,11 @@ var(finalPayE)
     **ANSWER** No it's not a fair game. If you start at $0 and continue to play, on average your return -200158.
     b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
     
-    
+    **ANSWER** As you can see from my graph, the overall winnings cross from negative to positive in between the probabilities 47% and 49%. So a value close to initial chance of winning at 49% would be a fair game. 
     
     c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
+    
+    **ANSWER** As you can see from the plot, the overall winnings cross from negative to positive when the Markov increment for the probability of winning is between 1.2% and 1.3%. So a value inbetween there would be the "fair" amount if the initial probability of winning is 48%. 
     
 ``` {r echo = TRUE} 
 
@@ -226,6 +228,8 @@ meanSim <- rep(NA, length(rangeProb))
 
 markovRange <- data.frame(rangeProb, meanSim)
 
+startTime <- Sys.time()
+
 for (i in 1:length(rangeProb)) { 
   initalProbWin <- rangeProb[i]
   
@@ -234,12 +238,47 @@ for (i in 1:length(rangeProb)) {
   markovRange$meanSim[i] <- mean(simulationMarkovAnswers[numTrials, 1:100]) # pull last number out of each sim and average
 }
 
+endTime <- Sys.time()
+
+totalTime <- round(endTime - startTime, 2)
+
+print(paste0("Simulation took ", totalTime, " hours")) # I kind of cheated since I hardcoded "hours"
+
 library(ggplot2)
 plotSim <- ggplot(markovRange, aes(x = rangeProb, y = meanSim)) + 
   geom_point() + 
-  geom_smooth()
+  geom_smooth() +
+  geom_hline(yintercept = 0, color = "red")
 plotSim
 
+## Answer C
+markovProbIncrease <- seq(.01, .10, by = .001) # range of increases in prob to win to test
+meanSim <- rep(NA, length(markovProbIncrease))
+
+markovRange <- data.frame(markovProbIncrease, meanSim)
+
+startTime <- Sys.time()
+
+for (i in 1:length(markovProbIncrease)) { 
+  probIncrement <- markovProbIncrease[i]
+  
+  simulationMarkovAnswers <- replicate(100, markovSim(probIncrement = probIncrement)) 
+
+  markovRange$meanSim[i] <- mean(simulationMarkovAnswers[numTrials, 1:100]) # pull last number out of each sim and average
+}
+
+endTime <- Sys.time()
+
+totalTime <- round(endTime - startTime, 2)
+
+print(paste0("Simulation took ", totalTime, " minutes")) # I kind of cheated since I hardcoded "minutes"
+
+library(ggplot2)
+plotSim <- ggplot(markovRange, aes(x = markovProbIncrease, y = meanSim)) + 
+  geom_point() + 
+  geom_smooth() +
+  geom_hline(yintercept = 0, color = "red")
+plotSim
 ```
 
 
